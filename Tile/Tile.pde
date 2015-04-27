@@ -12,8 +12,8 @@ static final float SCALE_MAX = 0.7;
 static final float MAIN_PHOTO_Y = 0.75;
 static final float MAIN_PHOTO_SCALE = 0.9;
 
-static final boolean DEBUG_SHOW_IMAGE = false;
-static final boolean DEBUG_SHOW_ELLIPSE = true;
+static final boolean DEBUG_SHOW_IMAGE = true;
+static final boolean DEBUG_SHOW_ELLIPSE = false;
 
 ArrayList<PImage> images = new ArrayList<PImage>();
 Random rand = new Random();
@@ -146,7 +146,7 @@ void setupButtons() {
   cp5.addButton("drawAgain").setPosition(50, cp5y).setSize(60,30).setOn();
   cp5.addButton("reload").setPosition(120, cp5y).setSize(60,30).setOn();
   cp5.addButton("savePNG").setPosition(190, cp5y).setSize(60,30).setOn();
-  cp5.addButton("loadFile").setPosition(260, cp5y).setSize(60,30).setOn();
+  cp5.addButton("imageForEach").setPosition(260, cp5y).setSize(60,30).setOn();
 }
 
 void controlEvent(ControlEvent e) {
@@ -191,7 +191,13 @@ void controlEvent(ControlEvent e) {
 		    println("You chose to open this file: " + f.getName());
 			images.add(loadImage(f.getAbsolutePath()));
 		}
-   }
+  } else if (e.isFrom("imageForEach")) {
+  	int counter = 0;
+  	for (PImage im : images) {
+  		drawIt(tileImage, im);
+	    tileImage.save(String.format("/Users/boxysean/__Fluxfinity_gen/Fluxfinity-%04d.jpg", counter++));
+  	}
+  }
 }
 
 void loadFilesFromFolder(File folder) {
@@ -217,6 +223,13 @@ void setup() {
 }
 
 void drawIt(PGraphics g) {
+	drawIt(g, null);
+}
+
+void drawIt(PGraphics g, PImage mainImage) {
+	g.beginDraw();
+	g.background(#000000);
+
 	ArrayList<Pair> points = new ArrayList<Pair>();
 
 	// Randomly exponentially placed photos
@@ -270,19 +283,20 @@ void drawIt(PGraphics g) {
 	g.pushMatrix();
 	g.translate(width/2, height * MAIN_PHOTO_Y);
 	g.scale(MAIN_PHOTO_SCALE);
-	PImage mainImage = images.get(images.size()-1);
+	if (mainImage == null) {
+		mainImage = images.get(images.size()-1);
+	}
 	g.image(mainImage, -mainImage.width/2, -mainImage.height/2);
 	g.popMatrix();
+
+	g.endDraw();
 }
 
 void draw() {
     background(#FFFFFF);
 
 	if (drawAgain) {
-		tileImage.beginDraw();
-		tileImage.background(#FFFFFF);
 		drawIt(tileImage);
-		tileImage.endDraw();
 		drawAgain = false;
 	}
 
